@@ -1,0 +1,1 @@
+https://github.com/marketplace/actions/deploy-to-cloudflare-workers-with-wrangler

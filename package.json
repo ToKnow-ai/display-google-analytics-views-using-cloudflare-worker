@@ -1,0 +1,15 @@
+{
+  "name": "google-analytics-views-cloudflare-worker",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "cloudflare-workers-and-google-oauth": "^2.0.0"
+  }
+}
