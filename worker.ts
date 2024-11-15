@@ -119,7 +119,13 @@ export default {
 						'Authorization': `Bearer ${token}`,
 						'Content-Type': 'application/json',
 					},
-					body: JSON.stringify(requestBody)
+					body: JSON.stringify(requestBody),
+					'cf': {
+						// Always cache this fetch regardless of content type
+						// for a max of 30 minutes before revalidating the resource
+						cacheTtl: 30 * 60,
+						cacheEverything: true
+					},
 				});
 
 			if (!response.ok) {
@@ -145,7 +151,7 @@ export default {
 				generateViewsBadge(formatNumber(counts)), {
 				headers: {
 					'Content-Type': 'image/svg+xml',
-					'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
+					'Cache-Control': `public, max-age=${6 * 60 * 60}`, // Cache for 6 hours
 					'Access-Control-Allow-Origin': '*'
 				}
 			});
