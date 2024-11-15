@@ -2,6 +2,8 @@ name = "google-analytics-views-cloudflare-worker"
 main = "worker.ts"
 compatibility_date = "2024-11-15"
 workers_dev = true
+SERVICE_ACCOUNT_CREDENTIALS = ""
+GA_PROPERTY_ID = ""
 
 [observability]
 enabled = true
