@@ -5,7 +5,7 @@ workers_dev = true
 SERVICE_ACCOUNT_CREDENTIALS = ""
 GA_PROPERTY_ID = ""
 keep-vars = true
-routes = [toknow.ai/pageviews]
+routes = ["*toknow.ai/pageviews"]
 
 [observability]
 enabled = true
