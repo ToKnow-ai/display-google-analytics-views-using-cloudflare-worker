@@ -5,7 +5,7 @@ workers_dev = true
 SERVICE_ACCOUNT_CREDENTIALS = ""
 GA_PROPERTY_ID = ""
 keep-vars = true
-route = { pattern = "*toknow.ai/pageviews", zone_name = "toknow.ai" }
+route = { pattern = "*toknow.ai/pageviews*", zone_name = "toknow.ai" }
 
 [observability]
 enabled = true
