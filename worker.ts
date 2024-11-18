@@ -125,7 +125,8 @@ const getValues = (
 		.map(value => value?.['value'])
 }
 
-const CACHE_SECONDS = 4 * 60 * 60; // Cache for 4 hours
+const IMAGE_CACHE_SECONDS = 45 * 60; // Cache for 45 minutes
+const GOOGLE_CALL_CACHE_TTL_SECONDS = 45 * 60; // 45 minutes before revalidating the resource
 
 export default {
 	async fetch(
@@ -196,7 +197,7 @@ export default {
 						'cf': {
 							// Always cache this fetch regardless of content type
 							// for a max of 45 minutes before revalidating the resource
-							cacheTtl: 45 * 60,
+							cacheTtl: GOOGLE_CALL_CACHE_TTL_SECONDS,
 							cacheEverything: true
 						},
 					});
@@ -222,7 +223,7 @@ export default {
 					generateBadge("readers", formatNumber(counts), dimensionValues), {
 					headers: {
 						'Content-Type': 'image/svg+xml',
-						'Cache-Control': `public, max-age=${CACHE_SECONDS}`,
+						'Cache-Control': `public, max-age=${IMAGE_CACHE_SECONDS}`,
 						'Access-Control-Allow-Origin': '*'
 					}
 				});
