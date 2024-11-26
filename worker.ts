@@ -226,7 +226,8 @@ export default {
 					.map(value => parseInt(value ?? '0'))
 					.reduce((total, count) => total + count, 0);
 
-				const metadata = dimensionValues.map((value, index) => `${value} :: ${metricValues?.[index]?.toLocaleString?.() ?? 'NULL'}`)
+				const metadata = dimensionValues.map((value, index) => 
+					`${value} :: ${metricValues?.[index]?.toLocaleString?.() ?? 'NULL'}`);
 				
 				const shorten = getQuery("shorten") || false;
 				const label = getQuery("label") || "readers";
