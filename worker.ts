@@ -22,7 +22,7 @@ const getTextWidth = (text: string): number => {
 
 // Enhanced helper function to generate SVG badge
 const generateBadge = (label: string, value: string | number, metadata: string[] = []) => {
-  const valueText = typeof value === 'number' ? value.toLocaleString() : value.toString();
+  const valueText: string = typeof value === 'number' ? value.toLocaleString() : value;
   
   // Calculate widths
   const labelWidth = getTextWidth(label);
@@ -117,10 +117,10 @@ namespace GoogleAnalyticsReport {
 
 const getValues = (
 	analyticsResponse: GoogleAnalyticsReport.Report, 
-	dimensionKey: keyof GoogleAnalyticsReport.ReportRow) => {
+	searchKey: keyof GoogleAnalyticsReport.ReportRow) => {
 	return (analyticsResponse?.['rows'] ?? [])
 		.flatMap(row => Object.entries(row) as Entries<GoogleAnalyticsReport.ReportRow>)
-		.filter(([key, _]) => key ===  dimensionKey)
+		.filter(([key, _]) => key ===  searchKey)
 		.flatMap(([_, values]) => values)
 		.map(value => value?.['value'])
 }
@@ -138,6 +138,10 @@ export default {
 			const cache = caches.default
   			let response = await cache.match(request)
 			if (!response) {
+				if (!env.SERVICE_ACCOUNT_CREDENTIALS || !env.GA_PROPERTY_ID) {
+					throw new Error("No credentials")
+				}
+
 				const scopes: string[] = [
 					'https://www.googleapis.com/auth/analytics.readonly']
 				const googleAuth: GoogleKey = JSON.parse(
@@ -155,9 +159,10 @@ export default {
 					return new Response('Method not allowed', { status: 405 });
 				}
 
-				const page_path = [
+				const getQuery = (queryName) => [
 					...new URL(request.url).searchParams.entries()].find(
-						([key, _]) => (key || '').toLowerCase().trim() === "page_path")?.[1]
+						([key, _]) => (key || '').toLowerCase().trim() === queryName)?.[1]
+				const page_path = getQuery("page_path");
 				if (!page_path) {
 					return new Response('page_path not available', { status: 405 });
 				}
@@ -214,19 +219,31 @@ export default {
 				}
 
 				const data = await analyticsResponse.json<GoogleAnalyticsReport.Report>();
-				const counts = getValues(data, 'metricValues')
-					.map(value => parseInt(value ?? '0'))
-					.reduce((total, count) => total + count, 0);
+				const metricValues = getValues(data, 'metricValues');
 				const dimensionValues = getValues(data, 'dimensionValues');
 
+				const viewsCount = metricValues
+					.map(value => parseInt(value ?? '0'))
+					.reduce((total, count) => total + count, 0);
+
+				const metadata = dimensionValues.map((value, index) => `${value} :: ${metricValues?.[index]?.toLocaleString?.() ?? 'NULL'}`)
+				
+				const shorten = getQuery("shorten") || false;
+				const label = getQuery("label") || "readers";
+				const badgeSVG = generateBadge(
+					label, 
+					shorten ? formatNumber(viewsCount) : viewsCount, 
+					metadata);
 				response = new Response(
-					generateBadge("readers", formatNumber(counts), dimensionValues), {
-					headers: {
-						'Content-Type': 'image/svg+xml',
-						'Cache-Control': `public, max-age=${IMAGE_CACHE_SECONDS}`,
-						'Access-Control-Allow-Origin': '*'
-					}
-				});
+					badgeSVG, 
+					{
+						headers: 
+						{
+							'Content-Type': 'image/svg+xml',
+							'Cache-Control': `public, max-age=${IMAGE_CACHE_SECONDS}`,
+							'Access-Control-Allow-Origin': '*'
+						}
+					});
 
 				// Cache API respects Cache-Control headers
 				ctx.waitUntil(cache.put(request, response.clone()));
