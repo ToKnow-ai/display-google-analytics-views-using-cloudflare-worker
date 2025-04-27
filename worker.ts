@@ -249,46 +249,35 @@ export default {
           const metricValues = getValues(data, "metricValues");
           const dimensionValues = getValues(data, "dimensionValues");
 
-          const viewsCount = metricValues
-            .map((value) => parseInt(value ?? "0"))
-            .reduce((total, count) => total + count, 0);
+          const viewsCount =
+            metricValues
+              .map((value) => parseInt(value ?? "0"))
+              .reduce((total, count) => total + count, 0) || 1;
 
-          if (viewsCount > 0) {
-            // take the first 20 to avoid bloating the image. Sort desc in future..
-            const metadata = dimensionValues
-              .slice(0, 20)
-              .map(
-                (value, index) =>
-                  `${value} :: ${
-                    metricValues?.[index]?.toLocaleString?.() ?? "NULL"
-                  }`
-              );
+          // take the first 20 to avoid bloating the image. Sort desc in future..
+          const metadata = dimensionValues
+            .slice(0, 20)
+            .map(
+              (value, index) =>
+                `${value} :: ${
+                  metricValues?.[index]?.toLocaleString?.() ?? "NULL"
+                }`
+            );
 
-            const shorten = getQuery("shorten") || false;
-            const label = getQuery("label") || "readers";
-            const badgeSVG = generateBadge(
-              label,
-              shorten ? formatNumber(viewsCount) : viewsCount,
-              metadata
-            );
-            response = new Response(badgeSVG, {
-              headers: {
-                "Content-Type": "image/svg+xml",
-                "Cache-Control": `public, max-age=${IMAGE_CACHE_SECONDS}`,
-                "Access-Control-Allow-Origin": "*",
-              },
-            });
-          } else {
-            response = new Response(
-              "Wait a bit longer, no data available yet",
-              {
-                status: 500,
-                headers: {
-                  "Content-Type": "application/json",
-                },
-              }
-            );
-          }
+          const shorten = getQuery("shorten") || false;
+          const label = getQuery("label") || "readers";
+          const badgeSVG = generateBadge(
+            label,
+            shorten ? formatNumber(viewsCount) : viewsCount,
+            metadata
+          );
+          response = new Response(badgeSVG, {
+            headers: {
+              "Content-Type": "image/svg+xml",
+              "Cache-Control": `public, max-age=${IMAGE_CACHE_SECONDS}`,
+              "Access-Control-Allow-Origin": "*",
+            },
+          });
         }
 
         // Cache API respects Cache-Control headers
