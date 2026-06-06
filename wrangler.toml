@@ -1,4 +1,5 @@
 name = "google-analytics-views-cloudflare-worker"
+account_id = "080a63e1b12d608cd1bbed2f525682a9"
 main = "worker.ts"
 compatibility_date = "2024-11-15"
 workers_dev = true
